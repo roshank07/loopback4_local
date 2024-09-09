@@ -19,13 +19,13 @@ import {
 import {MSSQLDataSource} from '../datasources/mssql.datasource';
 import {User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
-import {UserService} from '../services/user.service';
+import {UserService2} from '../services/user.service2';
 
 export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
-    @inject('services.UserService') private userService: UserService,
+    // @inject('services.UserService') private userService: UserService,
     @inject('datasources.MSSQLDataSource') private dataSource: MSSQLDataSource
 
   ) {}
@@ -132,7 +132,7 @@ export class UserController {
   // }
 
 
-  @get('/users/{username}', {
+  @post('/findusers', {
     responses: {
       '200': {
         description: 'User model instance',
@@ -145,14 +145,18 @@ export class UserController {
     },
   })
   async findById(
-    @param.path.string('username') username: string
+   @requestBody() req:any
   ): Promise<User | null> {
     // Raw SQL query
     const sql = 'SELECT * FROM test.dbo.[User] WHERE username = @username';
 
     try {
       // Execute raw SQL query
-      const result = await this.userService.getUserByUsername(sql,username);
+    const username = req.username;
+    const id = req.id;
+    const userService = new UserService2();
+    const query = 'SELECT * FROM test.dbo.[User] WHERE username != @username AND id = @id'; // Example query
+    const result=await userService.getUserByUsername(query, {username: username, id: id} );
       // Return the user if found, otherwise return null
       return result.length > 0 ? result[0] : null;
     } catch (error) {
