@@ -16,6 +16,9 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
+import * as fs from 'fs';
+import * as path from 'path';
+import userDump from '../config/users.json';
 import {MSSQLDataSource} from '../datasources/mssql.datasource';
 import {User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
@@ -65,7 +68,10 @@ export class UserController {
   async count(
     @param.where(User) where?: Where<User>,
   ): Promise<Count> {
+
+    console.log('userDUmppppp',userDump);
     return this.userRepository.count(where);
+
   }
 
   @get('/users', {
@@ -209,5 +215,54 @@ export class UserController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.userRepository.deleteById(id);
+  }
+    @get('/dump-users', {
+    responses: {
+      '200': {
+        description: 'Dump users to JSON file',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async dumpUsersToJson(): Promise<{ message: string }> {
+    const query = 'SELECT * FROM test.dbo.[User]'; // Adjust the table name as needed
+     try {
+      const userService = new UserService2();
+      const result = await userService.getUserByUsername(query, {});
+       // Define the path to the JSON file
+      const dirPath = path.join(process.cwd(), 'src/config');
+      const filePath = path.join(dirPath, 'users.json');
+
+      console.log('Directory Path:', dirPath);
+      console.log('File Path:', filePath);
+
+      // Ensure the directory exists
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+        console.log('Directory created:', dirPath);
+      } else {
+        console.log('Directory already exists:', dirPath);
+      }
+
+      // Write the result to the JSON file
+      fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+      console.log('File written:', filePath);
+
+
+
+      return { message: 'Users dumped to JSON file successfully' };
+    } catch (error) {
+      console.error('Error dumping users to JSON file:', error);
+      throw error; // You can customize error handling here
+    }
   }
 }
