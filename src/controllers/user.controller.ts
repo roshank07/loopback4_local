@@ -265,4 +265,59 @@ export class UserController {
       throw error; // You can customize error handling here
     }
   }
+
+  @get('/getTemplate/{id}')
+
+  async getTemplate(@param.path.number('id') id: number): Promise<any> {
+    const sql = 'SELECT input_params FROM test.dbo.[template] WHERE id = @id';
+    const userService = new UserService2();
+    const result = await userService.getUserByUsername(sql, {id: id});
+    console.log("result",result[0].input_params);
+    const input_params =JSON.parse(result[0].input_params);
+    let response = [];
+    for(let i=0;i<input_params.length;i++){
+      response.push(input_params[i]);
+    }
+    const sql2 = 'SELECT cust FROM test.dbo.[template] WHERE id = @id';
+    const userService2 = new UserService2();
+    const result2 = await userService2.getUserByUsername(sql2, {id: id});
+    console.log("result2",result2[0].cust);
+    const cust =JSON.parse(result2[0].cust);
+    console.log('cust',cust);
+
+    return response;
+  }
+
+  @get('/params')
+  async getCustomData() {
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+   const query = `
+      SELECT
+          cust1.option_name AS cust1,
+          cust2.option_name AS cust2,
+          cust3.option_name AS cust3,
+          cust4.option_name AS cust4
+      FROM
+          test.dbo.[paramsOP] cust1
+      LEFT JOIN
+          test.dbo.[paramsOP] cust2 ON cust2.id_category = cust1.id_category+1
+      LEFT JOIN
+          test.dbo.[paramsOP] cust3 ON cust3.id_category = cust1.id_category+2
+      LEFT JOIN
+          test.dbo.[paramsOP] cust4 ON cust4.id_category = cust1.id_category+3
+      WHERE
+          cust1.id_category = 45
+          AND cust2.start_date <= '${today}'
+          AND cust2.end_date >= '${today}';
+`;
+
+
+    // Execute the query
+    const userService = new UserService2();
+    const result = await userService.getUserByUsername(query, {});
+    console.log('result',result[0]);
+    return result;
+  }
+
 }

@@ -1,5 +1,34 @@
 [
   {
-
+    "id": 1,
+    "username": "roshan",
+    "email": "roshann.purbey@gmail.com",
+    "password": "123",
+    "role": "Normal",
+    "createdAt": "2024-09-09T18:13:37.310Z"
+  },
+  {
+    "id": 2,
+    "username": "roshan1",
+    "email": "roshaanna",
+    "password": "345",
+    "role": "Normal",
+    "createdAt": "2024-09-17T15:28:43.877Z"
+  },
+  {
+    "id": 1004,
+    "username": "Roshan4",
+    "email": "trioo@hhh",
+    "password": "9040",
+    "role": "P",
+    "createdAt": "2024-10-04T00:34:58.267Z"
+  },
+  {
+    "id": 1005,
+    "username": "Roshan5",
+    "email": "tro@hhh",
+    "password": "904kk0",
+    "role": "Q",
+    "createdAt": "2024-10-04T01:10:23.863Z"
   }
 ]
