@@ -161,10 +161,15 @@ export class UserController {
     const username = req.username;
     const id = req.id;
     const userService = new UserService2();
-    const query = 'SELECT * FROM test.dbo.[User] WHERE username != @username AND id = @id'; // Example query
-    const result=await userService.getUserByUsername(query, {username: username, id: id} );
+    const query = 'SELECT option_name FROM test.dbo.[paramsOP]'; // Example query
+    const result=await userService.getUserByUsername(query, {} );
       // Return the user if found, otherwise return null
-      return result.length > 0 ? result[0] : null;
+      console.log("result",result);
+      if(result[1].option_name==null){
+        console.log("resultkkkkkkkk");
+      }
+      return result.length > 0 ? result[1] : null;
+
     } catch (error) {
       console.error('Error executing raw SQL query:', error);
       throw error; // You can customize error handling here
@@ -318,6 +323,11 @@ export class UserController {
     const result = await userService.getUserByUsername(query, {});
     console.log('result',result[0]);
     return result;
+  }
+
+  @get('/get-dump-users/{index}')
+  async getDumpUsers(@param.path.number('index') index: number): Promise<any> {
+    return userDump[index];
   }
 
 }

@@ -26,7 +26,7 @@
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
     "docker:build": "docker build -t loopback .",
-    "docker:run": "docker run -p 3000:3000 -d loopback",
+    "docker:run": "docker run -p 3004:3004 -d loopback",
     "premigrate": "npm run build",
     "migrate": "node ./dist/migrate",
     "preopenapi-spec": "npm run build",
