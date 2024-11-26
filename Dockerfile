@@ -4,7 +4,7 @@ FROM node:18
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
-RUN apt install -y vim
+RUN apt-get update && apt-get install -y vim
 
 # Install dependencies
 COPY package*.json ./
