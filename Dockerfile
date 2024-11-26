@@ -1,28 +1,18 @@
-# Check out https://hub.docker.com/_/node to select a new base image
-FROM docker.io/library/node:18-slim
+# Use Node.js official image
+FROM node:18
 
-# Set to a non-root built-in user `node`
-USER node
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
-# Create app directory (with user `node`)
-RUN mkdir -p /home/node/app
+RUN apt install -y vim
 
-WORKDIR /home/node/app
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY --chown=node package*.json ./
-
+# Install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Bundle app source code
-COPY --chown=node . .
 
-RUN npm run build
+# Expose the port your app uses
+EXPOSE 3000
 
-# Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3000
-
-EXPOSE ${PORT}
-CMD [ "node", "." ]
+# Start the application
+CMD ["npm", "start"]
