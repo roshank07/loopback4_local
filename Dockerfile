@@ -2,7 +2,7 @@
 FROM docker.io/library/node:18-slim
 
 # Set to a non-root built-in user `node`
-#USER node
+USER node
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -18,12 +18,13 @@ COPY --chown=node package*.json ./
 RUN npm install
 
 # Bundle app source code
-#COPY --chown=node . .
+COPY --chown=node . .
 
-#RUN npm run build
+RUN npm run clean
+RUN npm run build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=3000
 
 EXPOSE ${PORT}
-CMD [ "node", "." ]
+CMD [ "node", "."]

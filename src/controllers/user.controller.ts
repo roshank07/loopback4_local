@@ -15,6 +15,7 @@ import {
   post,
   put,
   requestBody,
+  Response
 } from '@loopback/rest';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -138,21 +139,10 @@ export class UserController {
   // }
 
 
-  @post('/findusers', {
-    responses: {
-      '200': {
-        description: 'User model instance',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(User, {includeRelations: true}),
-          },
-        },
-      },
-    },
-  })
+  @post('/findusers')
   async findById(
-   @requestBody() req:any
-  ): Promise<User | null> {
+   @requestBody() req: any, @inject('rest.http.response') res: Response
+  ): Promise<any> {
     // Raw SQL query
     const sql = 'SELECT * FROM test.dbo.[User] WHERE username = @username';
 
@@ -162,7 +152,7 @@ export class UserController {
     const id = req.id;
     const userService = new UserService2();
     const query = 'SELECT option_name FROM test.dbo.[paramsOP]'; // Example query
-    const result=await userService.getUserByUsername(query, {} );
+    const result=await userService.getUserByUsername(query, {username,id} );
       // Return the user if found, otherwise return null
       console.log("result",result);
       if(result[1].option_name==null){
@@ -171,8 +161,7 @@ export class UserController {
       return result.length > 0 ? result[1] : null;
 
     } catch (error) {
-      console.error('Error executing raw SQL query:', error);
-      throw error; // You can customize error handling here
+     res.status(200).json({ status:200,message: error.message });
     }
   }
 
@@ -327,6 +316,7 @@ export class UserController {
 
   @get('/get-dump-users/{index}')
   async getDumpUsers(@param.path.number('index') index: number): Promise<any> {
+
     return userDump[index];
   }
 
