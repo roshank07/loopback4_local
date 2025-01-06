@@ -55,7 +55,7 @@
     "@loopback/rest": "^14.0.4",
     "@loopback/rest-explorer": "^7.0.4",
     "@loopback/service-proxy": "^7.0.4",
-    "axios": "^1.7.4",
+    "axios": "^1.7.9",
     "loopback-connector-mssql": "^3.8.0",
     "mssql": "^11.0.1",
     "nodemailer": "^6.9.14",

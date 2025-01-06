@@ -8,6 +8,7 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {EncryptionController} from './controllers';
 import {MSSQLDataSource} from './datasources/mssql.datasource';
 import {MySequence} from './sequence';
 import {EmailService} from './services/email.service';
@@ -34,6 +35,9 @@ export class LoopbackApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+
+     // Register the controller
+    this.controller(EncryptionController);
 
     this.dataSource(MSSQLDataSource);
 

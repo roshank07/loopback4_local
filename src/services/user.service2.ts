@@ -47,6 +47,7 @@ export class UserService2 {
 }
 
     // Execute the query
+    console.log("query",query);
     const result = await request.query(query);
     return result.recordset;
   } catch (err) {

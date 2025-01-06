@@ -23,6 +23,7 @@ import userDump from '../config/users.json';
 import {MSSQLDataSource} from '../datasources/mssql.datasource';
 import {User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
+import {SqlService} from '../services/sqlservice.service';
 import {UserService2} from '../services/user.service2';
 
 export class UserController {
@@ -30,8 +31,7 @@ export class UserController {
     @repository(UserRepository)
     public userRepository : UserRepository,
     // @inject('services.UserService') private userService: UserService,
-    @inject('datasources.MSSQLDataSource') private dataSource: MSSQLDataSource
-
+    @inject('datasources.MSSQLDataSource') private dataSource: MSSQLDataSource,
   ) {}
 
   @post('/users', {
@@ -150,18 +150,21 @@ export class UserController {
       // Execute raw SQL query
     const username = req.username;
     const id = req.id;
-    const userService = new UserService2();
-    const query = 'SELECT option_name FROM test.dbo.[paramsOP]'; // Example query
-    const result=await userService.getUserByUsername(query, {username,id} );
+    // const userService = new UserService2();
+    const query = `update test.dbo.[paramsOP] set option_name=${username} where id=${id}`; // Example query
+    await new SqlService().executeRawQuery(query,[username,id]);
       // Return the user if found, otherwise return null
-      console.log("result",result);
-      if(result[1].option_name==null){
-        console.log("resultkkkkkkkk");
-      }
-      return result.length > 0 ? result[1] : null;
-
+      // console.log("result",result);
+      // if(result[1].option_name==null){
+      //   console.log("resultkkkkkkkk");
+      // }
+      // return result.length > 0 ? result[1] : null;
+      return res.status(200).json({
+        status:'200',
+        message:'Updated'
+      })
     } catch (error) {
-     res.status(200).json({ status:200,message: error.message });
+     res.status(500).json({ status:500,message: error.message });
     }
   }
 
@@ -260,27 +263,27 @@ export class UserController {
     }
   }
 
-  @get('/getTemplate/{id}')
+  // @get('/getTemplate/{id}')
 
-  async getTemplate(@param.path.number('id') id: number): Promise<any> {
-    const sql = 'SELECT input_params FROM test.dbo.[template] WHERE id = @id';
-    const userService = new UserService2();
-    const result = await userService.getUserByUsername(sql, {id: id});
-    console.log("result",result[0].input_params);
-    const input_params =JSON.parse(result[0].input_params);
-    let response = [];
-    for(let i=0;i<input_params.length;i++){
-      response.push(input_params[i]);
-    }
-    const sql2 = 'SELECT cust FROM test.dbo.[template] WHERE id = @id';
-    const userService2 = new UserService2();
-    const result2 = await userService2.getUserByUsername(sql2, {id: id});
-    console.log("result2",result2[0].cust);
-    const cust =JSON.parse(result2[0].cust);
-    console.log('cust',cust);
+  // async getTemplate(@param.path.number('id') id: number): Promise<any> {
+  //   const sql = 'SELECT input_params FROM test.dbo.[template] WHERE id = @id';
+  //   const userService = new UserService2();
+  //   const result = await userService.getUserByUsername(sql, {id: id});
+  //   console.log("result",result[0].input_params);
+  //   const input_params =JSON.parse(result[0].input_params);
+  //   let response = [];
+  //   for(let i=0;i<input_params.length;i++){
+  //     response.push(input_params[i]);
+  //   }
+  //   const sql2 = 'SELECT cust FROM test.dbo.[template] WHERE id = @id';
+  //   const userService2 = new UserService2();
+  //   const result2 = await userService2.getUserByUsername(sql2, {id: id});
+  //   console.log("result2",result2[0].cust);
+  //   const cust =JSON.parse(result2[0].cust);
+  //   console.log('cust',cust);
 
-    return response;
-  }
+  //   return response;
+  // }
 
   @get('/params')
   async getCustomData() {
@@ -310,7 +313,7 @@ export class UserController {
     // Execute the query
     const userService = new UserService2();
     const result = await userService.getUserByUsername(query, {});
-    console.log('result',result[0]);
+    // console.log('result',result[0]);
     return result;
   }
 
