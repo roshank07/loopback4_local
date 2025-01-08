@@ -1,0 +1,6 @@
+{
+  "encJavaPath": "java/Encryptor.class",
+  "decJavaPath": "java/Decryptor.class",
+  "publicKeyPath": "certificates/wildcard.pub",
+  "privateKeyPath": "certificates/wildcardpv.key"
+}

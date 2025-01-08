@@ -9,6 +9,7 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {EncryptionController} from './controllers';
+import {GatewayController} from './controllers/Gateway.controller';
 import {MSSQLDataSource} from './datasources/mssql.datasource';
 import {MySequence} from './sequence';
 import {EmailService} from './services/email.service';
@@ -38,6 +39,8 @@ export class LoopbackApplication extends BootMixin(
 
      // Register the controller
     this.controller(EncryptionController);
+
+    this.controller(GatewayController);
 
     this.dataSource(MSSQLDataSource);
 
