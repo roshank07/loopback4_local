@@ -43,6 +43,16 @@ export class User extends Entity {
   })
   createdAt?: Date;
 
+  @property({
+    type: 'boolean'
+  })
+  error_flag?: boolean;
+
+  @property({
+    type: 'number',
+  })
+  version: number | null;
+
   constructor(data?: Partial<User>) {
     super(data);
   }

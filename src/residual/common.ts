@@ -4,7 +4,7 @@ export class commonFunction {
   static async getDecryptData(fileName: string,data: any): Promise<any> {
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/v1/decrypt',
+        'http://localhost:8001/api/v1/decrypt',
         {
           fileName: fileName,
           data: data,
@@ -23,7 +23,7 @@ export class commonFunction {
   static async getEncryptData(fileName: string,data: any): Promise<any> {
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/v1/encrypt',
+        'http://localhost:8001/api/v1/encrypt',
         {
           fileName: fileName,
           data: data,

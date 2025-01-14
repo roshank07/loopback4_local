@@ -3,8 +3,9 @@ import {
   Count,
   CountSchema,
   Filter,
+  IsolationLevel,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -19,12 +20,15 @@ import {
 } from '@loopback/rest';
 import * as fs from 'fs';
 import * as path from 'path';
+import cf from '../config/config.json';
 import userDump from '../config/users.json';
 import {MSSQLDataSource} from '../datasources/mssql.datasource';
 import {User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
+import {commonFunction} from '../residual/common';
 import {SqlService} from '../services/sqlservice.service';
 import {UserService2} from '../services/user.service2';
+
 
 export class UserController {
   constructor(
@@ -139,31 +143,195 @@ export class UserController {
   // }
 
 
+
   @post('/findusers')
   async findById(
-   @requestBody() req: any, @inject('rest.http.response') res: Response
+   @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              username: { type: 'string' },
+              password: { type: 'string' },
+            },
+            example: {
+              username: '',
+              password: '',
+            },
+          },
+        },
+      },
+   }) req: any, @inject('rest.http.response') res: Response
   ): Promise<any> {
-    // Raw SQL query
-    const sql = 'SELECT * FROM test.dbo.[User] WHERE username = @username';
 
     try {
       // Execute raw SQL query
     const username = req.username;
-    const id = req.id;
-    // const userService = new UserService2();
-    const query = `update test.dbo.[paramsOP] set option_name=${username} where id=${id}`; // Example query
-    await new SqlService().executeRawQuery(query,[username,id]);
-      // Return the user if found, otherwise return null
-      // console.log("result",result);
-      // if(result[1].option_name==null){
-      //   console.log("resultkkkkkkkk");
-      // }
-      // return result.length > 0 ? result[1] : null;
+    const psk=req.password;
+
+    const errorQuery = `SELECT error_flag FROM test.dbo.[user] WHERE username='${username}'`; // Example query
+    const errorResult=await new SqlService().executeRawQuery(errorQuery);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    let message='';
+    if(errorResult[0].error_flag == 1){
+      await new SqlService().executeRawQuery(`update test.dbo.[user] set error_flag=0 where username='${username}'`);
+      const query = `update test.dbo.[user] set password='${psk}' where username='${username}'`;
+      await new SqlService().executeRawQuery(query);
+      message='updated';
+    } else{
+      message='not updated';
+    }
+
       return res.status(200).json({
         status:'200',
-        message:'Updated'
+        message:message
       })
     } catch (error) {
+     res.status(500).json({ status:500,message: error.message });
+    }
+  }
+
+    @post('/findusersconn')
+  async findById2(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              username: { type: 'string' },
+              password: { type: 'string' },
+            },
+            example: {
+              username: '',
+              password: '',
+            },
+          },
+        },
+      },
+    }) req: any, @inject('rest.http.response') res: Response
+  ): Promise<any> {
+    const username = req.username;
+    const psk = req.password;
+    const publicKeysPath=cf.publicKeyPath
+    const xmlData = `
+      <data>
+        <name>Roshannnn</name>
+        <location>Mumbai</location>
+      </data>
+    `;
+    // Start a transaction using the DataSource
+    const tx = await this.dataSource.beginTransaction({
+      isolationLevel: IsolationLevel.READ_COMMITTED,
+    });
+    let x:any;
+    try {
+      // Lock the row for update
+      const lockQuery = `SELECT * FROM test.dbo.[user] WITH (UPDLOCK, ROWLOCK) WHERE username='${username}'`;
+      const record = await this.dataSource.execute(lockQuery, [], { transaction: tx });
+       // Add a 5-second delay
+      //  console.log("passss",psk)
+      // await new Promise(resolve => setTimeout(resolve, 5000));
+      console.log("passss2222222",psk)
+      let message = '';
+      if (record.length && record[0].error_flag) {
+        // Update the flag in the database within the transaction
+        const updateFlagQuery = `UPDATE test.dbo.[user] SET error_flag=0,password='${psk}' WHERE username='${username}'`;
+        await this.dataSource.execute(updateFlagQuery, [], { transaction: tx });
+         // Commit the transaction
+        await tx.commit();
+         x =commonFunction.getEncryptData(publicKeysPath,xmlData);
+
+        message = 'updated';
+      } else {
+        message = 'not updated';
+        // Commit the transaction
+        await tx.commit();
+      }
+      console.log('x-----',x);
+      return res.status(200).json({
+        status: '200',
+        message: message,
+      });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await tx.rollback();
+      console.error('Error in findById2222:', error);
+      throw error;
+    }
+  }
+
+   @post('/findusersversion')
+  async findByIdVersion(
+   @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              username: { type: 'string' },
+              password: { type: 'string' },
+            },
+            example: {
+              username: '',
+              password: '',
+            },
+          },
+        },
+      },
+   }) req: any, @inject('rest.http.response') res: Response
+  ): Promise<any> {
+
+    try {
+      // Execute raw SQL query
+    const username = req.username;
+    const psk=req.password;
+    const publicKeysPath=cf.publicKeyPath
+    const xmlData = `
+      <data>
+        <name>Roshannnn</name>
+        <location>Mumbai</location>
+      </data>
+    `;
+
+    const errorQuery = `SELECT error_flag,version FROM test.dbo.[user] WHERE username='${username}'`;
+    const errorResult=await new SqlService().executeRawQuery(errorQuery);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    let message='';
+    if(errorResult[0].error_flag == 1){
+      const nextVersion=errorResult[0].version?errorResult[0].version+1:1;
+      const currentVersion=errorResult[0].version;
+      let rowsaffected=0;
+      if(currentVersion == null){
+        console.log("currentVersion is null",currentVersion,'--->',psk);
+        const updateResult = await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: {eq: null}});
+        rowsaffected = updateResult.count;
+        // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version IS NULL`;
+      }else{
+        console.log("currentVersion is not null",currentVersion,'--->',psk);
+        const updateResult=await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: currentVersion});
+        rowsaffected =updateResult.count;
+        // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version=${currentVersion}`;
+      }
+      // const updateCount=await new SqlService().executeRawQuery(query);
+      console.log('rowsaffected',rowsaffected,'--->',psk);
+      if(rowsaffected == 1){
+        message='updated';
+        commonFunction.getEncryptData(publicKeysPath,xmlData);
+      } else{
+        message='not updated';
+      }
+    } else{
+      message='not updated';
+    }
+
+      return res.status(200).json({
+        status:'200',
+        message:message
+      })
+    } catch (error) {
+      console.error('Error in findByIdVersion:', error);
      res.status(500).json({ status:500,message: error.message });
     }
   }
