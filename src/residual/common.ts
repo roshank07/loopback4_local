@@ -39,6 +39,15 @@ export class commonFunction {
       throw new Error('Failed to fetch data from Java Service for Encryption');
     }
   }
+   async generate12CharAlphanumericUUID(): Promise<string> {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let uuid = '';
+    for (let i = 0; i < 12; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      uuid += chars[randomIndex];
+    }
+    return uuid;
+  }
 }
 
 

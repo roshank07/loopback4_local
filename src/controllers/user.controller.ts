@@ -295,6 +295,8 @@ export class UserController {
 
     try {
       // Execute raw SQL query
+    const uuid=await new commonFunction().generate12CharAlphanumericUUID();
+    console.log('uuid',uuid);
     const username = req.username;
     const psk=req.password;
     const publicKeysPath=cf.publicKeyPath
