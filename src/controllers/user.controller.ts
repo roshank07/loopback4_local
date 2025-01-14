@@ -169,16 +169,26 @@ export class UserController {
       // Execute raw SQL query
     const username = req.username;
     const psk=req.password;
+     const publicKeysPath=cf.publicKeyPath
+    const xmlData = `
+      <data>
+        <name>Roshannnn</name>
+        <location>Mumbai</location>
+      </data>
+    `;
+
 
     const errorQuery = `SELECT error_flag FROM test.dbo.[user] WHERE username='${username}'`; // Example query
     const errorResult=await new SqlService().executeRawQuery(errorQuery);
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // await new Promise(resolve => setTimeout(resolve, 5000));
     let message='';
     if(errorResult[0].error_flag == 1){
       await new SqlService().executeRawQuery(`update test.dbo.[user] set error_flag=0 where username='${username}'`);
       const query = `update test.dbo.[user] set password='${psk}' where username='${username}'`;
       await new SqlService().executeRawQuery(query);
       message='updated';
+      console.log('external docker called',message);
+      commonFunction.getEncryptData(publicKeysPath,xmlData);
     } else{
       message='not updated';
     }
@@ -297,7 +307,7 @@ export class UserController {
 
     const errorQuery = `SELECT error_flag,version FROM test.dbo.[user] WHERE username='${username}'`;
     const errorResult=await new SqlService().executeRawQuery(errorQuery);
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     let message='';
     if(errorResult[0].error_flag == 1){
       const nextVersion=errorResult[0].version?errorResult[0].version+1:1;
@@ -323,6 +333,7 @@ export class UserController {
         message='not updated';
       }
     } else{
+      console.log('error_flag is 0','--->',psk);
       message='not updated';
     }
 
