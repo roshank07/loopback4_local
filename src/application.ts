@@ -11,6 +11,7 @@ import path from 'path';
 import {EncryptionController} from './controllers';
 import {GatewayController} from './controllers/Gateway.controller';
 import {MSSQLDataSource} from './datasources/mssql.datasource';
+import {setupGlobalErrorHandling} from './global-error-handler';
 import {MySequence} from './sequence';
 import {EmailService} from './services/email.service';
 
@@ -35,6 +36,8 @@ export class LoopbackApplication extends BootMixin(
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
     });
+     // Set up global error handling
+    setupGlobalErrorHandling(this);
     this.component(RestExplorerComponent);
 
      // Register the controller

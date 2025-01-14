@@ -338,7 +338,7 @@ export class UserController {
       console.log('error_flag is 0','--->',psk);
       message='not updated';
     }
-
+    console.log('message before returnnnnnnnnn',message);
       return res.status(200).json({
         status:'200',
         message:message
