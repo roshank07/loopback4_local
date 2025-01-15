@@ -309,35 +309,50 @@ export class UserController {
 
     const errorQuery = `SELECT error_flag,version FROM test.dbo.[user] WHERE username='${username}'`;
     const errorResult=await new SqlService().executeRawQuery(errorQuery);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('errorResult',errorResult[0].error_flag);
     let message='';
-    if(errorResult[0].error_flag == 1){
-      const nextVersion=errorResult[0].version?errorResult[0].version+1:1;
-      const currentVersion=errorResult[0].version;
-      let rowsaffected=0;
-      if(currentVersion == null){
-        console.log("currentVersion is null",currentVersion,'--->',psk);
-        const updateResult = await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: {eq: null}});
-        rowsaffected = updateResult.count;
-        // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version IS NULL`;
-      }else{
-        console.log("currentVersion is not null",currentVersion,'--->',psk);
-        const updateResult=await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: currentVersion});
-        rowsaffected =updateResult.count;
-        // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version=${currentVersion}`;
-      }
-      // const updateCount=await new SqlService().executeRawQuery(query);
-      console.log('rowsaffected',rowsaffected,'--->',psk);
-      if(rowsaffected == 1){
+    // if(errorResult[0].error_flag){
+    //   const nextVersion=errorResult[0].version?errorResult[0].version+1:1;
+    //   const currentVersion=errorResult[0].version;
+    //   let rowsaffected=0;
+    //   if(currentVersion == null){
+    //     console.log("currentVersion is null",currentVersion,'--->',psk);
+    //     const updateResult = await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: {eq: null}});
+    //     rowsaffected = updateResult.count;
+    //     // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version IS NULL`;
+    //   }else{
+    //     console.log("currentVersion is not null",currentVersion,'--->',psk);
+    //     const updateResult=await this.userRepository.updateAll({error_flag:false,password:psk,version:nextVersion},{username:username,version: currentVersion});
+    //     rowsaffected =updateResult.count;
+    //     // query = `update test.dbo.[user] set password='${psk}',error_flag=0,version=${nextVersion} where username='${username}' and version=${currentVersion}`;
+    //   }
+    //   // const updateCount=await new SqlService().executeRawQuery(query);
+    //   console.log('rowsaffected',rowsaffected,'--->',psk);
+    //   if(rowsaffected == 1){
+    //     message='updated';
+    //     console.log('external docker called',message);
+    //     // commonFunction.getEncryptData(publicKeysPath,xmlData);
+    //   } else{
+    //     message='not updated';
+    //   }
+    // } else{
+    //   console.log('error_flag is 0','--->',psk);
+    //   message='not updated';
+    // }
+    if(errorResult[0].error_flag){
+      const updateResult=await this.userRepository.updateAll({error_flag:0},{username:username,error_flag:errorResult[0].error_flag});
+      console.log('updateResult',updateResult);
+      const rowsaffected =updateResult.count;
+       if(rowsaffected == 1){
         message='updated';
-        commonFunction.getEncryptData(publicKeysPath,xmlData);
+        console.log('external docker called',message);
+        commonFunction.getEncryptData(publicKeysPath,xmlData).catch((err)=>{console.log('err',err)});
       } else{
         message='not updated';
       }
-    } else{
-      console.log('error_flag is 0','--->',psk);
-      message='not updated';
+
     }
+
     console.log('message before returnnnnnnnnn',message);
       return res.status(200).json({
         status:'200',

@@ -26,10 +26,10 @@ export class User extends Entity {
   email: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  password: string;
+  password: number;
 
   @property({
     type: 'string',
@@ -44,9 +44,9 @@ export class User extends Entity {
   createdAt?: Date;
 
   @property({
-    type: 'boolean'
+    type: 'number'
   })
-  error_flag?: boolean;
+  error_flag?: Number;
 
   @property({
     type: 'number',
