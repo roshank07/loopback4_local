@@ -169,33 +169,85 @@ export class UserController {
       // Execute raw SQL query
     const username = req.username;
     const psk=req.password;
-     const publicKeysPath=cf.publicKeyPath
-    const xmlData = `
-      <data>
-        <name>Roshannnn</name>
-        <location>Mumbai</location>
-      </data>
-    `;
+    //  const publicKeysPath=cf.publicKeyPath
+    // const xmlData = `
+    //   <data>
+    //     <name>Roshannnn</name>
+    //     <location>Mumbai</location>
+    //   </data>
+    // `;
 
 
-    const errorQuery = `SELECT error_flag FROM test.dbo.[user] WHERE username='${username}'`; // Example query
-    const errorResult=await new SqlService().executeRawQuery(errorQuery);
-    // await new Promise(resolve => setTimeout(resolve, 5000));
-    let message='';
-    if(errorResult[0].error_flag == 1){
-      await new SqlService().executeRawQuery(`update test.dbo.[user] set error_flag=0 where username='${username}'`);
-      const query = `update test.dbo.[user] set password='${psk}' where username='${username}'`;
-      await new SqlService().executeRawQuery(query);
-      message='updated';
-      console.log('external docker called',message);
-      commonFunction.getEncryptData(publicKeysPath,xmlData);
-    } else{
-      message='not updated';
-    }
+    // const errorQuery = `SELECT error_flag FROM test.dbo.[user] WHERE username='${username}'`; // Example query
+    // const errorResult=await new SqlService().executeRawQuery(errorQuery);
+    // // await new Promise(resolve => setTimeout(resolve, 5000));
+    // let message='';
+    // if(errorResult[0].error_flag == 1){
+    //   await new SqlService().executeRawQuery(`update test.dbo.[user] set error_flag=0 where username='${username}'`);
+    //   const query = `update test.dbo.[user] set password='${psk}' where username='${username}'`;
+    //   await new SqlService().executeRawQuery(query);
+    //   message='updated';
+    //   console.log('external docker called',message);
+    //   commonFunction.getEncryptData(publicKeysPath,xmlData);
+    // } else{
+    //   message='not updated';
+    // }
+
+    CREATE TABLE Employees (
+    emp_id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(50),
+    mobile_num BIGINT,
+    isActive BIT
+);
+
+CREATE TABLE emp_details (
+    emp_id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(50),
+    mobile_num varchar(10),
+    isActive BIT
+);
+
+
+// CREATE NONCLUSTERED INDEX IDX_empdetails_MobileNum
+// ON emp_details (mobile_num);
+
+
+// INSERT INTO emp_details (emp_id, name, mobile_num, isActive)
+// SELECT emp_id, name, mobile_num, isActive FROM Employees;
+
+// SELECT * FROM emp_details;
+
+// select * from test.dbo.[emp_details] where emp_id='sdksjd' and mobile_num='sds' and  isActive=1;
+
+      let missingFields:any = [];
+      if(username&&psk){
+        const query=`select * from test.dbo.[emp_details] where emp_id='${username}' and mobile_num='${psk}' and  isActive=1`;
+        const result=await new SqlService().executeRawQuery(query);
+        console.log('result',result);
+        if(result.length == 0){{
+          console.log('Employee_not_found');
+        missingFields.push('Employee_not_found');
+        }}
+      } else{
+        if(!username){
+          missingFields.push('username');
+        }
+        if(!psk){
+          missingFields.push('password');
+        }
+      }
+
+      if(missingFields.length > 0){
+        return res.status(200).json({
+          status:'200',
+          message:'Missing Fields',
+          missingFields:missingFields
+        })
+      }
 
       return res.status(200).json({
         status:'200',
-        message:message
+        name1:'Success',
       })
     } catch (error) {
      res.status(500).json({ status:500,message: error.message });

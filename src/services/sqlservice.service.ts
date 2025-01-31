@@ -38,6 +38,7 @@ export class SqlService {
           console.error('SQL Execution Error:', err);
           // reject(err); // Properly reject on error
         } else {
+          console.log('Query:', query);
           resolve(result);
         }
       });
