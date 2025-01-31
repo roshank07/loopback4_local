@@ -193,19 +193,19 @@ export class UserController {
     //   message='not updated';
     // }
 
-    CREATE TABLE Employees (
-    emp_id VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(50),
-    mobile_num BIGINT,
-    isActive BIT
-);
+    // CREATE TABLE Employees (
+    // emp_id VARCHAR(20) PRIMARY KEY,
+    // name VARCHAR(50),
+    // mobile_num BIGINT,
+    // isActive BIT
+    // );
 
-CREATE TABLE emp_details (
-    emp_id VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(50),
-    mobile_num varchar(10),
-    isActive BIT
-);
+    // CREATE TABLE emp_details (
+    // emp_id VARCHAR(20) PRIMARY KEY,
+    // name VARCHAR(50),
+    // mobile_num varchar(10),
+    // isActive BIT
+    // );
 
 
 // CREATE NONCLUSTERED INDEX IDX_empdetails_MobileNum
