@@ -2,5 +2,13 @@
   "encJavaPath": "java/Encryptor.class",
   "decJavaPath": "java/Decryptor.class",
   "publicKeyPath": "certificates/wildcard.pub",
-  "privateKeyPath": "certificates/wildcardpv.key"
+  "privateKeyPath": "certificates/wildcardpv.key",
+  "JWT":{
+    "secret":"wuebweuweioweiwoewnecn@$%334959lqwlqwq",
+    "TIMEOUT":60,
+    "client":[
+      {"clientId":"a17c30dbf94e4c52b9801f1f3f9e6342","clientSecret":"b92764dabcbd48a0b38fe3e9c496ea53","source":"RO"}
+    ]
+
+  }
 }

@@ -1,3 +1,4 @@
+import {AuthenticationComponent, registerAuthenticationStrategy} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {juggler, RepositoryMixin} from '@loopback/repository';
@@ -8,13 +9,14 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {JWTStrategy} from './authentication-strategies/jwt-strategy';
 import {EncryptionController} from './controllers';
 import {GatewayController} from './controllers/Gateway.controller';
 import {MSSQLDataSource} from './datasources/mssql.datasource';
 import {setupGlobalErrorHandling} from './global-error-handler';
 import {MySequence} from './sequence';
 import {EmailService} from './services/email.service';
-
+import {ClientService} from './services/jwt-client-service';
 
 
 export {ApplicationConfig};
@@ -46,6 +48,11 @@ export class LoopbackApplication extends BootMixin(
     this.controller(GatewayController);
 
     this.dataSource(MSSQLDataSource);
+
+    this.component(AuthenticationComponent);
+    registerAuthenticationStrategy(this, JWTStrategy);
+
+    this.bind('services.ClientService').toClass(ClientService);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
